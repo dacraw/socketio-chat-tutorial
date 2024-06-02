@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-
 <html>
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-    <title>Socket IO Tutorial Chat</title>
+    <title>Socket.IO chat</title>
     <style>
       body {
         margin: 0;
@@ -60,11 +59,8 @@
   <body>
     <ul id="messages"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" />
-      <button>Send</button>
-      <button id="toggle-btn">Disconnect</button>
+      <input id="input" autocomplete="off" /><button>Send</button>
     </form>
-
     <script src="/socket.io/socket.io.js"></script>
     <script>
       let counter = 0;
@@ -77,14 +73,13 @@
         retries: 3,
       });
 
-      const form = document.querySelector("#form");
-      const input = document.querySelector("#input");
-      const messages = document.querySelector("#messages");
+      const form = document.getElementById("form");
+      const input = document.getElementById("input");
+      const messages = document.getElementById("messages");
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         if (input.value) {
-          // compute a unique offset
           const clientOffset = `${socket.id}-${counter++}`;
           socket.emit("chat message", input.value, clientOffset);
           input.value = "";
