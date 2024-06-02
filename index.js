@@ -34,16 +34,26 @@ app.get("/", (req, res) => {
 io.on("connection", async (socket) => {
   console.log("a user connected");
 
-  //   socket.broadcast.emit("hi"); // can't see this in server logs? i don't understand yet
-
-  socket.on("chat message", async (msg) => {
+  socket.on("chat message", async (msg, clientOffset, callback) => {
     let result;
     try {
-      result = await db.run(`INSERT INTO messages (content) VALUES (?)`, msg);
+      result = await db.run(
+        `INSERT INTO messages (content, client_offset) VALUES (?, ?)`,
+        msg,
+        clientOffset
+      );
     } catch (e) {
+      if (e.errno === 19 /* sql_lite constraint */) {
+        // the message was already inserted, so we notify the client
+        callback();
+      } else {
+        // nothing to do, just let the client retry
+      }
       return;
     }
     io.emit("chat message", msg, result.lastID);
+
+    callback();
   });
 
   if (!socket.recovered) {
